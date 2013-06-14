@@ -1,0 +1,9 @@
+/etc/skel/Desktop/smbconnect.desktop
+/opt/samp-sis/libs/libsamp-array.sh
+/opt/samp-sis/libs/libsamp-forms.sh
+/opt/samp-sis/libs/libsamp-keyboard.sh
+/opt/samp-sis/libs/libsamp-menu.sh
+/opt/samp-sis/smbconnect
+/opt/samp-sis/smbconnect.conf
+/usr/bin/smbconnect
+/usr/share/applications/smbconnect.desktop

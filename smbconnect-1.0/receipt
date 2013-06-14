@@ -1,0 +1,33 @@
+# SliTaz package receipt.
+
+
+
+PACKED_SIZE="4.5K"
+UNPACKED_SIZE="44.5K"
+PACKAGE="smbconnect"
+VERSION="1.0"
+CATEGORY="system"
+SHORT_DESC="Windows Files Sharing Client Connection."
+MAINTAINER="elvinrodas@outlook.com"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+TAGS="installer setup"
+WEB_SITE="http://elvinrodas.comoj.com/projects/pkg/$PACKAGE/"
+WGET_URL="http://elvinrodas.comoj.com/projects/pkg/$TARBAll"
+
+DEPENDS=""
+BUILD_DEPENDS=""
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	./configure --prefix=/usr \
+		$CONFIGURE_ARGS &&
+	make $MAKEFLAGS && make DESTDIR=$PWD/_pkg install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cp -a $install/* $fs
+}

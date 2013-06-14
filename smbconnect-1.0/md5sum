@@ -1,0 +1,9 @@
+3c42f3c7d1ca5705390880a7a7aae381  /etc/skel/Desktop/smbconnect.desktop
+c50a60e8f1f77541d2e2a3c7e60e50a1  /opt/samp-sis/libs/libsamp-array.sh
+3a1e2560a99c66ccd3906bb09d8084eb  /opt/samp-sis/libs/libsamp-forms.sh
+eee8ab51f57a41d318c459586840b050  /opt/samp-sis/libs/libsamp-keyboard.sh
+f73c184dda666fc97b2eda24135b62a1  /opt/samp-sis/libs/libsamp-menu.sh
+934d47c214d7ed295e23af1a3ca85665  /opt/samp-sis/smbconnect
+a40250111eb23441da95d73eb48ce4a2  /opt/samp-sis/smbconnect.conf
+7c40b704d96d7a73eb0df6b8ddfce9d3  /usr/bin/smbconnect
+3c42f3c7d1ca5705390880a7a7aae381  /usr/share/applications/smbconnect.desktop

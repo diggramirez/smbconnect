@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Windows Files Sharing Connection
+Exec=tazbox su sakura -t Windows-Files-Sharing-Connection -he smbconnect
+Icon=network-workgroup
+Categories=System;Network;

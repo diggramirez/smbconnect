@@ -1,0 +1,166 @@
+#!/bin/sh
+#
+# samp-gtk samba client cmdline interface
+#
+# Copyright (C) 2013 Elvin Rodas - elvinrodas@outlook.com
+#
+VERSION=1.0
+
+#include library
+. /opt/samp-sis/libs/libsamp-forms.sh
+
+#
+# Commands
+#
+
+NAME=smbconnect
+the_title="Windows Files Sharing Connection."
+the_description="This program allow you to mount a Windows shared folder in a few steps."
+CONFIG="/opt/samp-sis/smbconnect.conf"
+[ -f $CONFIG ] && . $CONFIG
+history_file="/home/$LOGNAME/.config/samp-sis/smbconnect-history.list"
+[ ! -d "/home/$LOGNAME/.config/samp-sis" ] && mkdir -p "/home/$LOGNAME/.config/samp-sis"
+
+#clear
+
+r_host=""
+r_loop="n"
+while [ $r_loop != "1" ]
+do
+
+  skip_form=false
+  newline
+  form_header "$the_title" \
+   "$the_description"
+  newline
+
+  if [ -f "$history_file" ]; then
+    form_confirm "Reconnect from history?"
+    r_answer=$?
+
+    if [ $r_answer == "0" ]; then
+      #show list of mounted folders '$history_file'
+
+      i=1
+      OLDIFS=$IFS
+      IFS=$'\n' # the delimiter of the file, using tab here.
+
+      newline
+      file="$(cat $history_file)"
+      for line in $file
+      do
+        if [ ! -z "$line" ]; then #check if the is not blank
+         echo -e " $(colorize 31 [$i]) $line"
+        let i=$i+1
+        fi
+      done
+      IFS=$OLDIFS
+       echo " $(colorize 31 [a]) Another folder"
+       echo " $(colorize 31 [c]) Clean historic"
+       echo " $(colorize 31 [cq]) Clean historic and Quit"
+       echo " $(colorize 31 [q]) Quit"
+
+      newline
+      form_label "Select one option: " && read r_answer
+      if [ "$r_answer" == "a" ]; then  #another
+         skip_form=false
+      elif [ "$r_answer" == "c" ]; then  #clean history
+         rm $history_file
+         echo -e "\n Historic cleaned."
+      elif [ "$r_answer" == "cq" ]; then  #clean history+quit
+         rm $history_file
+         echo -e "\n Historic cleaned."
+         break
+      elif [ "$r_answer" == "q" ]; then  #quit
+         break
+      elif [ "$r_answer" -ge "1" ] && [ "$r_answer" -le "$i" ]; then
+         i=1
+         for line in $file
+         do
+           if [ ! -z "$line" ]; then #check if the is not blank
+            if [ "$r_answer" == "$i" ]; then
+              r_host="$(echo $line | cut -d';' -f1)"
+              r_folder="$(echo $line | cut -d';' -f2)"
+              r_username="$(echo $line | cut -d';' -f3)"
+              echo -e "\n  Selected host:"$r_host", folder:"$r_folder" and user:"$r_username"\n"
+              break
+            fi
+            let i=$i+1
+           fi
+         done
+         skip_form=true
+      fi
+    fi
+
+  fi
+
+  if [ $skip_form == false ]; then
+    form_label "  host/ip address : " && read r_host
+    form_label "  shared folder   : " && read r_folder
+  fi
+
+  mounted_dir=`( echo $r_folder | tr '/' '-')`
+  destination_dir="/media/network/$r_host/$mounted_dir"
+  [ ! -d $destination_dir ] && mkdir -p $destination_dir
+
+  #nbfiles=`ls $destination_dir | wc -l` #nb of files in folder
+  #nbfiles=`ls -A $destination_dir` #empty string if empty folder
+
+  if [ "$(ls -A $destination_dir)" ]; then
+    newline
+    echo " Folder '$destination_dir' is not empty!"
+    newline
+  else
+    if [ $skip_form == false ]; then
+      form_label "  user            : " && read r_username
+    fi
+
+    form_label "  password        : " && read r_password
+    newline
+
+    echo "Mounting shared drive..."
+    mount -t cifs \
+     //$r_host/$r_folder \
+     "$destination_dir/" \
+     -o \
+     username=$r_username,password=$r_password,uid=$USER_ID,gid=$GROUP_ID,dir_mode=0777
+    status
+
+  fi
+
+  #udevil mount smb://$r_username:$r_password@$r_host/$r_folder
+
+  if [ "$(ls -A $destination_dir)" ]; then #success!
+
+    #save directory
+    history="${r_host};${r_folder};${r_username}"
+    if [ -f $history_file ]; then
+      if [ $(grep $history $history_file -c) -eq "0" ]; then
+        echo -e "$history" >> "$history_file"
+      fi
+    else
+      echo -e "$history" >> "$history_file"
+    fi
+
+    form_confirm "Open folder ($destination_dir/)?"
+    r_answer=$?
+
+    if [ $r_answer == "0" ]; then
+      su - $LOGNAME -c "file-manager "$destination_dir/""
+      sleep 2
+    fi
+
+  fi
+
+  newline
+  form_confirm "Mount another shared drive?"
+  r_loop=$?
+  newline
+  separator
+
+done
+
+form_exit_msg
+
+exit 0
+
